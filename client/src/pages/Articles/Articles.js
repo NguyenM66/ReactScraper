@@ -10,13 +10,9 @@ import { Input, TextArea, SearchBtn } from "../../components/Search";
 class Articles extends Component {
   state = {
     articles: [],
-    rank: "",
     title: "",
     url: "",
-    points: "",
-    username: "",
-    saved: "",
-    note: ""
+    date: "",
   };
 
   componentDidMount() {
@@ -26,7 +22,7 @@ class Articles extends Component {
   loadArticles = () => {
     API.getArticles()
       .then(res =>
-        this.setState({ articles: res.data, rank: "", title: "", url: "", points: "", username: "", saved: "", note: "" })
+        this.setState({ articles: res.data, title: "", url: "", date: ""})
       )
       .catch(err => console.log(err));
   };
@@ -46,15 +42,11 @@ class Articles extends Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    if (this.state.title && this.state.username) {
+    if (this.state.title && this.state.date) {
       API.saveArticle({
-        rank: this.state.rank,
         title: this.state.title,
         url: this.state.url,
-        points: this.state.points,
-        username: this.state.username,
-        saved: this.state.saved,
-        note: this.state.note
+        date: this.state.date,
       })
         .then(res => this.loadArticles())
         .catch(err => console.log(err));
@@ -77,15 +69,15 @@ class Articles extends Component {
                 placeholder="Title (required)"
               />
               <Input
-                value={this.state.username}
+                value={this.state.start}
                 onChange={this.handleInputChange}
-                name="username"
+                name="start"
                 placeholder="Username (required)"
               />
               <TextArea
-                value={this.state.note}
+                value={this.state.end}
                 onChange={this.handleInputChange}
-                name="note"
+                name="end"
                 placeholder="Note (Optional)"
               />
               <SearchBtn

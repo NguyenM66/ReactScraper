@@ -1,9 +1,12 @@
 import axios from "axios";
 
+//API: adc94b2a469f44f5b13d99301746217b
+const key = adc94b2a469f44f5b13d99301746217b;
+const URL = "https://api.nytimes.com/svc/search/v1/article?format=json&query=smoking&api-key="
 export default {
   // Gets all articles
   getArticles: function() {
-    return axios.get("/api/articles");
+    return axios.get(URL + key);
   },
   // Gets the article with the given id
   getArticle: function(id) {
