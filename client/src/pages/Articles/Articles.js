@@ -10,9 +10,10 @@ import { Input, TextArea, SearchBtn } from "../../components/Search";
 class Articles extends Component {
   state = {
     articles: [],
+    results: [],
     title: "",
-    url: "",
-    date: "",
+    start: "",
+    end: "",
   };
 
   componentDidMount() {
@@ -22,7 +23,7 @@ class Articles extends Component {
   loadArticles = () => {
     API.getArticles()
       .then(res =>
-        this.setState({ articles: res.data, title: "", url: "", date: ""})
+        this.setState({ articles: res.data, title: "", start: "", end: ""})
       )
       .catch(err => console.log(err));
   };
@@ -42,16 +43,33 @@ class Articles extends Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    if (this.state.title && this.state.date) {
-      API.saveArticle({
+    if (this.state.title) {
+      API.searchArticles({
         title: this.state.title,
-        url: this.state.url,
-        date: this.state.date,
+        start: this.state.start,
+        end: this.state.end,
       })
-        .then(res => this.loadArticles())
+        .then(res => {
+          let searchArray = res.data.response.docs.slice(0,10);
+          let articlesObj = searchArray.map(function(article) {
+            let articleObj = {
+              title: article.headline.main,
+              url: article.web.url,
+              date: article.pub_date
+            }
+            return articleObj;
+          })
+          this.setState({results: articlesObj});
+        }
         .catch(err => console.log(err));
     }
   };
+
+  handleSaveArticle = event => {
+    API.saveArticle(article)
+    .then(res => this.loadArticles());
+    .catch(err => console.log(err));
+  }
 
   render() {
     return (
@@ -66,19 +84,19 @@ class Articles extends Component {
                 value={this.state.title}
                 onChange={this.handleInputChange}
                 name="title"
-                placeholder="Title (required)"
+                placeholder="Title (Required)"
               />
               <Input
                 value={this.state.start}
                 onChange={this.handleInputChange}
                 name="start"
-                placeholder="Username (required)"
+                placeholder="Start (Optional)"
               />
               <TextArea
                 value={this.state.end}
                 onChange={this.handleInputChange}
                 name="end"
-                placeholder="Note (Optional)"
+                placeholder="End (Optional)"
               />
               <SearchBtn
                 disabled={!(this.state.username && this.state.title)}
@@ -92,16 +110,14 @@ class Articles extends Component {
             <Jumbotron>
               <h2>Articles On My List</h2>
             </Jumbotron>
-            {this.state.articles.length ? (
+            {this.state.results.length ? (
               <List>
-                {this.state.articles.map(article => (
+                {this.state.results.map( (article, index) => (
                   <ListItem key={article._id}>
-                    <Link to={"/articles/" + article._id}>
                       <strong>
-                        {article.title} by {article.author}
+                        {article.title} by {article.url}
                       </strong>
-                    </Link>
-                    <DeleteBtn onClick={() => this.deleteArticle(article._id)} />
+                    <SaveBtn onClick={() => this.saveArticle(article._id)} />
                   </ListItem>
                 ))}
               </List>
